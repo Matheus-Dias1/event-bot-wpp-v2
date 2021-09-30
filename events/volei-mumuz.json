@@ -1,57 +1,70 @@
 {
-    "Activity": "Rolê Vôlei Mumuz",
-    "Venue": "Jardins Roma",
-    "Date": "26/09 - Domingo às 15h00",
-    "Admins": [],
-    "AllowJoin": [],
-    "Invited": {
+    "activity": "Rolê Vôlei Mumuz",
+    "venue": "Jardins Roma",
+    "date": "26/09 - Domingo às 15h00",
+    "admins": [],
+    "filename": "volei-mumuz",
+    "allowJoin": [],
+    "invited": {
         "553484207764": {
-            "Confirmed": true,
-            "Name": "Matheus"
+            "confirmed": true,
+            "going": true, 
+            "name": "Matheus"
         },
         "553491029072": {
-            "Confirmed": false,
-            "Name": "Amanda Banana"
+            "confirmed": false,
+            "going": false, 
+            "name": "Amanda Banana"
         },
         "553491220204": {
-            "Confirmed": false,
-            "Name": "Kel"
+            "confirmed": false,
+            "going": false, 
+            "name": "Kel"
         },
         "553496430125": {
-            "Confirmed": false,
-            "Name": "Bruno"
+            "confirmed": false,
+            "going": false, 
+            "name": "Bruno"
         },
         "553496893368": {
-            "Confirmed": false,
-            "Name": "Octavio"
+            "confirmed": false,
+            "going": false, 
+            "name": "Octavio"
         },
         "553497691304": {
-            "Confirmed": false,
-            "Name": "Pedrão"
+            "confirmed": false,
+            "going": false, 
+            "name": "Pedrão"
         },
         "553497918855": {
-            "Confirmed": false,
-            "Name": "Andre Oliveira"
+            "confirmed": false,
+            "going": false, 
+            "name": "Andre Oliveira"
         },
         "553498094718": {
-            "Confirmed": false,
-            "Name": "Marina"
+            "confirmed": false,
+            "going": false, 
+            "name": "Marina"
         },
         "553498236418": {
-            "Confirmed": false,
-            "Name": "Lucas"
+            "confirmed": false,
+            "going": false, 
+            "name": "Lucas"
         },
         "553499105925": {
-            "Confirmed": false,
-            "Name": "Murilo"
+            "confirmed": false,
+            "going": false, 
+            "name": "Murilo"
         },
         "553499713612": {
-            "Confirmed": false,
-            "Name": "Tulio"
+            "confirmed": false,
+            "going": false, 
+            "name": "Tulio"
         },
         "553499878088": {
-            "Confirmed": false,
-            "Name": "Gustavo Marques"
+            "confirmed": false,
+            "going": false, 
+            "name": "Gustavo Marques"
         }
     },
     "InvitesSent": false

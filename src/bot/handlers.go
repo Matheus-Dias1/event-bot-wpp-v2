@@ -64,6 +64,9 @@ func (wa *WaHandler) HandleTextMessage(message whatsapp.TextMessage) {
 			wa.setVenue(message, ContextInfo, cmd.value)
 		case "SET_EVENT_DATE":
 			wa.setDate(message, ContextInfo, cmd.value)
+		case "GET_STATUS":
+			wa.getStatus(message, ContextInfo)
+			return
 		}
 
 	}
@@ -87,7 +90,26 @@ func (wa *WaHandler) HandleTextMessage(message whatsapp.TextMessage) {
 			wa.notGoing(message, ContextInfo, waid)
 		case "GET_STATUS":
 			wa.getStatus(message, ContextInfo)
+			return
+		case "CONFIG_EMOJI":
+			wa.configEmoji(message, ContextInfo, waid, cmd.value)
+		case "EMOJI_HELP":
+			wa.emojiHelp(message, ContextInfo)
 		}
+	}
+
+	// message sent from an ivited group
+	if wa.fromInvitedGroup(message) {
+		switch cmd.name {
+		case "JOIN_FROM_GROUP":
+			wa.JoinFromGroup(message, ContextInfo, cmd.value)
+		case "GET_STATUS":
+			wa.getStatus(message, ContextInfo)
+		}
+	}
+
+	if wa.Event.IsEventLoaded() {
+		wa.Event.SaveEvent()
 	}
 
 }

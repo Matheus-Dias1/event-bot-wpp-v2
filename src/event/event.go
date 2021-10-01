@@ -1,15 +1,18 @@
 package event
 
 import (
+	"event-bot-wpp/src/emoji"
 	"fmt"
 	"log"
 	"strings"
 )
 
 type nameAndRSVP struct {
-	Name      string `json:"name"`
-	Confirmed bool   `json:"confirmed"`
-	Going     bool   `json:"going"`
+	Name          string `json:"name"`
+	Confirmed     bool   `json:"confirmed"`
+	Going         bool   `json:"going"`
+	EmojiGender   string `json:"emojiGender"`
+	EmojiSkinTone string `json:"emojiSkinTone"`
 }
 
 type Waid string
@@ -46,20 +49,24 @@ func (e *Event) SetDate(date string) {
 // Going confirms someone's presence at the Event by their WAID
 func (e *Event) Going(id Waid) {
 	name := e.Invited[id].Name
-	e.Invited[id] = nameAndRSVP{name, true, true}
+	emoji := e.Invited[id].EmojiGender
+	skinTone := e.Invited[id].EmojiSkinTone
+	e.Invited[id] = nameAndRSVP{name, true, true, emoji, skinTone}
 	log.Printf("%s (%s) confirmou presença no evento %s\n", name, id, e.Activity)
 }
 
 // NotGoing confirms someone's abscence at the Event by their WAID
 func (e *Event) NotGoing(id Waid) {
 	name := e.Invited[id].Name
-	e.Invited[id] = nameAndRSVP{name, true, false}
-	log.Printf("%s (%s) confirmou presença no evento %s\n", name, id, e.Activity)
+	emoji := e.Invited[id].EmojiGender
+	skinTone := e.Invited[id].EmojiSkinTone
+	e.Invited[id] = nameAndRSVP{name, true, false, emoji, skinTone}
+	log.Printf("%s (%s) não irá ao evento %s\n", name, id, e.Activity)
 }
 
 // Invite adds someone to the Invited slice
 func (e *Event) Invite(id Waid, Name string) {
-	e.Invited[id] = nameAndRSVP{Name, false, false}
+	e.Invited[id] = nameAndRSVP{Name, false, false, "PERSON", "YELLOW"}
 	log.Printf("%s (%s) foi convidado para o evento %s\n", Name, id, e.Activity)
 }
 
@@ -89,9 +96,11 @@ func (e Event) IsAdmin(id Waid) bool {
 func (e *Event) UndoConfirmations() {
 	for key, val := range e.Invited {
 		e.Invited[key] = nameAndRSVP{
-			Name:      val.Name,
-			Confirmed: false,
-			Going:     false,
+			Name:          val.Name,
+			Confirmed:     false,
+			Going:         false,
+			EmojiGender:   val.EmojiGender,
+			EmojiSkinTone: val.EmojiSkinTone,
 		}
 	}
 	e.InvitesSent = false
@@ -102,18 +111,24 @@ func (e Event) GetStatus() string {
 	template := "```Atividade:``` %v\n```Local:``` %v\n```Data:``` %v\n\n*Convidados:*"
 	str := fmt.Sprintf(template, e.Activity, e.Venue, e.Date)
 
-	var val nameAndRSVP
-	for _, val = range e.Invited {
-		str += "\n" + val.Name
-		if val.Confirmed {
-			if val.Going {
-				str += " (👍)"
-			} else {
-				str += " (👎)"
-			}
-		} else {
-			str += " (❓)"
+	for _, val := range e.Invited {
+
+		emojiReq := emoji.PresenceEmoji{
+			Gender:   val.EmojiGender,
+			SkinTone: val.EmojiSkinTone,
 		}
+
+		if val.Confirmed && val.Going {
+			emojiReq.Going = "IS_GOING"
+		} else if val.Confirmed && !val.Going {
+			emojiReq.Going = "NOT_GOING"
+		} else {
+			emojiReq.Going = "UNCONFIRMED"
+		}
+
+		emoji := emoji.GetEmoji(emojiReq)
+		str += "\n" + val.Name + " (" + emoji + ")"
+
 	}
 	return str
 }
@@ -132,4 +147,25 @@ func (e Event) IsInvited(remotejid string) (bool, Waid) {
 
 	}
 	return false, Waid("")
+}
+
+// Checks if user has a emoji configured
+func (e Event) EmojiConfigured(id Waid) bool {
+	person := e.Invited[id]
+	return !(person.EmojiGender == "PERSON" && person.EmojiSkinTone == "YELLOW")
+}
+
+// Set persons emoji
+func (e *Event) SetEmoji(id Waid, gender, skin string) {
+	name := e.Invited[id].Name
+	confirmed := e.Invited[id].Confirmed
+	going := e.Invited[id].Going
+
+	e.Invited[id] = nameAndRSVP{
+		Name:          name,
+		Confirmed:     confirmed,
+		Going:         going,
+		EmojiGender:   gender,
+		EmojiSkinTone: skin,
+	}
 }

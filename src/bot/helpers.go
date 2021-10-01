@@ -25,6 +25,20 @@ var usageMap = map[string]string{
 	"!entrar": "seu nome",
 }
 
+var skinToneMap = map[int]string{
+	1: "LIGHT_SKIN_TONE",
+	2: "MEDIUM_LIGHT_SKIN_TONE",
+	3: "MEDIUM_SKIN_TONE",
+	4: "MEDIUM_DARK_SKIN_TONE",
+	5: "DARK_SKIN_TONE",
+}
+
+var GenderMap = map[int]string{
+	3: "PERSON",
+	1: "MAN",
+	2: "WOMAN",
+}
+
 /*
 	NO event loaded required // ADMIN only
 		→ !novo [nome do arquivo]
@@ -88,11 +102,14 @@ func parseText(text string) (cmd command) {
 	case "!sim":
 		cmd.name = "IS_GOING"
 		return
+	case "!emoji":
+		cmd.name = "EMOJI_HELP"
+		return
 
 	// FOR INCORECT COMMANDS USAGE
 	case "!novo", "!abrir", "!nome", "!data", "!local", "!entrar":
 		cmd.isValid = false
-		cmd.resStr = fmt.Sprint("Utilização do comando:\n\n```%s [%s]```", lowerCaseText, usageMap[lowerCaseText])
+		cmd.resStr = fmt.Sprintf("Utilização do comando:\n\n```%s [%s]```", lowerCaseText, usageMap[lowerCaseText])
 		return
 
 	}
@@ -128,6 +145,10 @@ func parseText(text string) (cmd command) {
 		cmd.name = "JOIN_FROM_GROUP"
 		cmd.value = cmdListCapitalized[1]
 		return
+	case strings.Index(lowerCaseText, "!emoji "):
+		cmd.name = "CONFIG_EMOJI"
+		cmd.value = cmdListCapitalized[1]
+		return
 	}
 
 	cmd.isValid = false
@@ -135,7 +156,8 @@ func parseText(text string) (cmd command) {
 
 }
 
-func (wa *WaHandler) invalidUsage(command string) (bool, bool) {
+//
+func (wa *WaHandler) invalidUsage(command string) (invalidUse bool, shouldAlert bool) {
 	isLoaded := wa.Event.IsEventLoaded()
 
 	switch command {
@@ -153,7 +175,7 @@ func (wa *WaHandler) invalidUsage(command string) (bool, bool) {
 		return !isLoaded, !isLoaded
 
 	default:
-		return !wa.Event.IsEventLoaded(), false
+		return !isLoaded, false
 	}
 }
 
@@ -163,4 +185,17 @@ func (wa *WaHandler) isAdmin(info whatsapp.MessageInfo) bool {
 		return true
 	}
 	return false
+}
+
+func (wa *WaHandler) fromInvitedGroup(message whatsapp.TextMessage) (flag bool) {
+	flag = false
+	if message.Info.Source.GetParticipant() != "" {
+		for _, gc := range wa.Event.AllowJoin {
+			if string(gc) == message.Info.RemoteJid {
+				flag = true
+				break
+			}
+		}
+	}
+	return
 }

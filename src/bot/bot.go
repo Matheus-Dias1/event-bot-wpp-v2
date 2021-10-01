@@ -25,7 +25,7 @@ func (wa *WaHandler) sendMessage(RemoteJid string, text string, ContextInfo what
 		Text:        text,
 	}
 
-	_, err := wa.c.Send(msg)
+	_, err := wa.C.Send(msg)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error sending message: %v", err)
 		os.Exit(1)
